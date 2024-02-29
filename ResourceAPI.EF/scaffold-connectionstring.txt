@@ -1,0 +1,7 @@
+Scaffold Command
+Scaffold-DbContext "Server=(localdb)\MSSQLLocalDB;Database=Payments;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -ContextDir DbContexts
+
+Connection String
+"ConnectionStrings": {
+    "PaymentDatabase": "Server=(localdb)\\MSSQLLocalDB;Database=Payments;Trusted_Connection=True;"
+  }
