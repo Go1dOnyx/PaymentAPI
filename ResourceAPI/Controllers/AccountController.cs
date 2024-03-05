@@ -12,10 +12,10 @@ namespace ResourceAPI.Controllers
     {
         private readonly PaymentsContext _paymentsContext;
         private UserRepository _userRepository;
-        public AccountController(PaymentsContext dbContext, UserRepository userRepo) 
+        public AccountController(PaymentsContext dbContext) 
         {
             _paymentsContext = dbContext;
-            _userRepository = userRepo;
+            _userRepository = new UserRepository(_paymentsContext);
         }
 
         [HttpPost(Name = "CreateAccount")]

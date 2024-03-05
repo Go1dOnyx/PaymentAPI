@@ -9,6 +9,7 @@ namespace ResourceAPI.EF.Repositories
 {
     public class UserRepository
     {
+        //
         private PaymentsContext _paymentsContext;
         public UserRepository(PaymentsContext dbContext) 
         {
