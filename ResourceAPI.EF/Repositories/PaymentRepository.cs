@@ -10,7 +10,7 @@ namespace ResourceAPI.EF.Repositories
 {
     public class PaymentRepository
     {
-        private PaymentsContext _paymentContext;
+        private readonly PaymentsContext _paymentContext;
         public PaymentRepository(PaymentsContext dbContext)
         {
             _paymentContext = dbContext;
