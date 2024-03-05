@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ResourceAPI.EF.DbContexts;
 using ResourceAPI.EF.Models;
 using ResourceAPI.EF.Repositories;
@@ -12,17 +13,30 @@ namespace ResourceAPI.Controllers
     public class AccountController : ControllerBase
     {
         private readonly PaymentsContext _paymentsContext;
-        private UserRepository _userRepository;
-        public AccountController(PaymentsContext dbContext, UserRepository userRepo) 
+        public AccountController(PaymentsContext dbContext) 
         {
             _paymentsContext = dbContext;
-            _userRepository = new UserRepository(_paymentsContext);
         }
 
         [HttpPost("login")]
-        public IActionResult Login(LoginModel model)
+        public async Task<ActionResult> Login(LoginModel model)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                var user = await _paymentsContext.Users.FirstOrDefaultAsync( u => u.Username == model.UserEmail || u.Email == model.UserEmail && u.Password == model.Password);
+                if (user == null)
+                {
+                    return Ok("User is Aunthenticated");
+                }
+                else 
+                {
+                    return BadRequest("Invalid Username or Password");
+                }
+            }
+            else 
+            {
+                return BadRequest("Invalid Username or Password");
+            }
         }
 
         [HttpPost("register")]
@@ -54,5 +68,9 @@ namespace ResourceAPI.Controllers
         {
             return View();
         }
+    }
+
+    public class async
+    {
     }
 }
