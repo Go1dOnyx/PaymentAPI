@@ -32,13 +32,13 @@ namespace ResourceAPI.Controllers
             return View();
         }
 
-        [HttpPut("update")]
+        [HttpPut("{id}")]
         public IActionResult Update() 
         {
 
         }
 
-        [HttpDelete("delete")]
+        [HttpDelete("{id}")]
         public IActionResult DeleteUser() 
         {
             return View();
