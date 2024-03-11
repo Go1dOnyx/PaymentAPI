@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc; 
 using Microsoft.EntityFrameworkCore;
 using ResourceAPI.EF.DbContexts;
 using ResourceAPI.EF.Models;
@@ -19,40 +19,71 @@ namespace ResourceAPI.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult> Login(LoginModel model)
+        public async Task<ActionResult> Login([FromBody]LoginModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) 
             {
-                var user = await _paymentsContext.Users.FirstOrDefaultAsync( u => u.Username == model.UserEmail || u.Email == model.UserEmail && u.Password == model.Password);
-                if (user == null)
-                {
-                    return Ok("User is Aunthenticated");
-                }
-                else 
-                {
-                    return BadRequest("Invalid Username or Password");
-                }
+                return BadRequest(ModelState + " - Invalid");
             }
-            else 
+
+            var user = await _paymentsContext.Users.FirstOrDefaultAsync(u => ( u.Username == model.UserEmail || u.Email == model.UserEmail ) && u.Password == model.Password);
+            if (user == null)
+            {
+                return Ok("User is Aunthenticated");
+            }
+            else
             {
                 return BadRequest("Invalid Username or Password");
             }
         }
-
+        
         [HttpPost("register")]
-        public IActionResult Register() 
+        public async Task<IActionResult> Register([FromBody]RegisterViewModel model) 
         {
-            return View();
+            if (!ModelState.IsValid) 
+            {
+                return BadRequest(ModelState + " - Invalid");
+            }
+
+            _paymentsContext.AddAsync(model);
+            await _paymentsContext.SaveChangesAsync();
+
+            return Ok("User was Added");
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Update() 
+              
+        [HttpPut("update")]
+        public async Task<IActionResult> Update([FromBody]UpdateViewModel model) 
         {
-            return View();
+            if (!ModelState.IsValid) 
+            {
+                return BadRequest(ModelState + "Invalid");
+            }
+
+            var getUser = await _paymentsContext.Users.FirstOrDefaultAsync(u => u.Username == model.Username || u.Email == model.Email);
+
+            if (getUser == null)
+            {
+                return NotFound("User not found");
+            }
+
+            getUser.Username = model.Username!;
+            getUser.Email = model.Email!;
+            getUser.Password = getUser.Password;
+            getUser.FirstName = getUser.FirstName;
+            getUser.MiddleName = getUser.MiddleName;
+            getUser.LastName = getUser.LastName;
+            getUser.Status = getUser.Status;    
+
+            await _paymentsContext.SaveChangesAsync();
+
+            return Ok("User was updated");
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult DeleteUser() 
+
+        //[HttpDelete("{id}")]
+        [HttpDelete("delete")]
+        public IActionResult DeleteUser([FromBody] ) 
         {
             return View();
         }
@@ -67,10 +98,6 @@ namespace ResourceAPI.Controllers
         public IActionResult GetAllUsers() 
         {
             return View();
-        }
-    }
-
-    public class async
-    {
+        }*/
     }
 }
