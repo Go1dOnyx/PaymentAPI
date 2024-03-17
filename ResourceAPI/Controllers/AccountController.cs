@@ -27,30 +27,39 @@ namespace ResourceAPI.Controllers
             }
 
             var user = await _paymentsContext.Users.FirstOrDefaultAsync(u => ( u.Username == model.UserEmail || u.Email == model.UserEmail ) && u.Password == model.Password);
-            if (user == null)
+            if (user != null)
             {
-                return Ok("User is Aunthenticated");
+                return Ok(user);
+              //  return Ok("User is Aunthenticated");
             }
             else
             {
-                return BadRequest("Invalid Username or Password");
+                return Unauthorized("Invalid Username or Password");
             }
         }
         
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody]RegisterViewModel model) 
+        public async Task<IActionResult> Register([FromBody]User model) 
         {
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState + " - Invalid");
             }
+            else 
+            {
+                if (model != null)
+                {
+                    await _paymentsContext.AddAsync(model);
+                    await _paymentsContext.SaveChangesAsync();
 
-            _paymentsContext.AddAsync(model);
-            await _paymentsContext.SaveChangesAsync();
-
-            return Ok("User was Added");
+                    return Ok(model);
+                }
+                else 
+                {
+                    return BadRequest("Could not successfully create new user");
+                }
+            }
         }
-
               
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromBody]UpdateViewModel model) 
@@ -80,7 +89,7 @@ namespace ResourceAPI.Controllers
             return Ok("User was updated");
         }
 
-
+        /*
         //[HttpDelete("{id}")]
         [HttpDelete("delete")]
         public IActionResult DeleteUser([FromBody] ) 
