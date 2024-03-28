@@ -1,4 +1,5 @@
-﻿using ResourceAPI.EF.DbContexts;
+﻿using Microsoft.EntityFrameworkCore;
+using ResourceAPI.EF.DbContexts;
 using ResourceAPI.EF.Models;
 using System;
 using System.Collections.Generic;
@@ -15,18 +16,19 @@ namespace ResourceAPI.EF.Repositories
         {
             _paymentContext = dbContext;
         }
-        public int Create(Payment payMethod)
+        public async Task<Payment> Create(Payment payMethod)
         {
-            _paymentContext.Add(payMethod);
+            await _paymentContext.AddAsync(payMethod);
             _paymentContext.SaveChanges();
 
-            return payMethod.PaymentId;
+            return payMethod;
         }
-        public int Update(Payment payment) 
+        public async Task<Payment> Update(Payment payment) 
         {
-            Payment getPayMethod = _paymentContext.Payments.Find(payment.PaymentId)!;
+            Payment getPayMethod = await _paymentContext.Payments.FindAsync(payment.PaymentId);
 
             getPayMethod.PaymentId = payment.PaymentId;
+            getPayMethod.UserID = payment.UserID;
             getPayMethod.CardNum = payment.CardNum;
             getPayMethod.CardholderName = payment.CardholderName;
             getPayMethod.ExpirationDate = payment.ExpirationDate;
@@ -37,25 +39,36 @@ namespace ResourceAPI.EF.Repositories
 
             _paymentContext.SaveChanges();
 
-            return getPayMethod.PaymentId;
+            return getPayMethod;
         }
-        public bool Delete(int payId) 
+        public async Task<bool> Delete(int payId) 
         {
-            Payment delPay = _paymentContext.Payments.Find(payId)!;
-            _paymentContext.Remove(delPay);
-            _paymentContext.SaveChanges();
+            Payment delPay = await _paymentContext.Payments.FindAsync(payId);
 
-            return true;
+            if (delPay != null) 
+            {
+                _paymentContext.Remove(delPay);
+                _paymentContext.SaveChanges();
+
+                return true;
+            }
+
+            return false;
         }
-        public List<Payment> GetAllPayments() 
+        public async Task<List<Payment>> GetAllPayments() 
         {
-            List<Payment> getPayments = _paymentContext.Payments.ToList();
+            List<Payment> getPayments = await _paymentContext.Payments.ToListAsync();
             return getPayments;
         }
-        public Payment GetPaymentById(int payId) 
+        public async Task<Payment?> GetPaymentById(int payId) 
         {
-            Payment getPay = _paymentContext.Payments.Find(payId)!;
+            Payment getPay = await _paymentContext.Payments.FindAsync(payId);
             return getPay;
+        }
+        public async Task<List<Payment>> GetAllFromId(int userId)
+        {
+            List<Payment> getAllPayments = await _paymentContext.Payments.Where(u => u.UserID == userId).ToListAsync();
+            return getAllPayments;
         }
     }
 }

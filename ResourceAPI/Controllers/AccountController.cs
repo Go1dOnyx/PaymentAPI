@@ -13,39 +13,38 @@ namespace ResourceAPI.Controllers
     public class AccountController : ControllerBase
     {
         private readonly PaymentsContext _paymentsContext;
-        public AccountController(PaymentsContext dbContext) 
+        public AccountController(PaymentsContext dbContext)
         {
             _paymentsContext = dbContext;
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult> Login([FromBody]LoginModel model)
+        public async Task<ActionResult> Login([FromBody] LoginModel model)
         {
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState + " - Invalid");
             }
 
-            var user = await _paymentsContext.Users.FirstOrDefaultAsync(u => ( u.Username == model.UserEmail || u.Email == model.UserEmail ) && u.Password == model.Password);
+            var user = await _paymentsContext.Users.FirstOrDefaultAsync(u => (u.Username == model.UserEmail || u.Email == model.UserEmail) && u.Password == model.Password);
             if (user != null)
             {
                 return Ok(user);
-              //  return Ok("User is Aunthenticated");
             }
             else
             {
                 return Unauthorized("Invalid Username or Password");
             }
         }
-        
+
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody]User model) 
+        public async Task<IActionResult> Register([FromBody] User model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState + " - Invalid");
             }
-            else 
+            else
             {
                 if (model != null)
                 {
@@ -54,17 +53,17 @@ namespace ResourceAPI.Controllers
 
                     return Ok(model);
                 }
-                else 
+                else
                 {
                     return BadRequest("Could not successfully create new user");
                 }
             }
         }
-              
+
         [HttpPut("update")]
-        public async Task<IActionResult> Update([FromBody]UpdateViewModel model) 
+        public async Task<IActionResult> Update([FromBody] UpdateViewModel model)
         {
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState + "Invalid");
             }
@@ -82,31 +81,51 @@ namespace ResourceAPI.Controllers
             getUser.FirstName = getUser.FirstName;
             getUser.MiddleName = getUser.MiddleName;
             getUser.LastName = getUser.LastName;
-            getUser.Status = getUser.Status;    
+            getUser.Status = getUser.Status;
 
             await _paymentsContext.SaveChangesAsync();
 
             return Ok("User was updated");
         }
 
-        /*
-        //[HttpDelete("{id}")]
-        [HttpDelete("delete")]
-        public IActionResult DeleteUser([FromBody] ) 
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser([FromRoute]int id) 
         {
-            return View();
+           var user = await _paymentsContext.Users.FindAsync(id);
+
+           _paymentsContext.Remove(user);
+           await  _paymentsContext.SaveChangesAsync();
+
+           return Ok();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUser([FromRoute]int id) 
+        {
+            try
+            {
+                var user = await _paymentsContext.Users.FindAsync(id);
+
+                if (user == null) 
+                {
+                    return NotFound($"Could not find user: {user?.UserId}");
+                }
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Invalid: {ex.Message}");
+            }
         }
 
         [HttpGet]
-        public IActionResult GetUser() 
+        public async Task<List<User>> GetAllUsers() 
         {
-            return View();
-        }
+            var results = await _paymentsContext.Users.ToListAsync();
 
-        [HttpGet]
-        public IActionResult GetAllUsers() 
-        {
-            return View();
-        }*/
+            return results;
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using ResourceAPI.EF.DbContexts;
 using ResourceAPI.EF.Models;
 namespace ResourceAPI.EF.Repositories
@@ -54,6 +55,13 @@ namespace ResourceAPI.EF.Repositories
         {
             User getUser = _paymentsContext.Users.Find()!;
             return getUser;
+        }
+
+        public async Task<List<Payment>> GetPaymentsForUser(int userId)
+        {
+            var paymentsForUser = _paymentsContext.Payments.Where(x => x.UserID == userId).ToList();
+
+            return paymentsForUser;
         }
     }
 }
